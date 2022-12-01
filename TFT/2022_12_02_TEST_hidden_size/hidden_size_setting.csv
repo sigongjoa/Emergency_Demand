@@ -1,0 +1,7 @@
+,hidden_size,model_ckpt
+0,8,Hidden_size_model_ckpt/lightning_logs/version_0/checkpoints/epoch=99-step=2000.ckpt
+1,16,Hidden_size_model_ckpt/lightning_logs/version_1/checkpoints/epoch=99-step=2000.ckpt
+2,32,Hidden_size_model_ckpt/lightning_logs/version_2/checkpoints/epoch=99-step=2000.ckpt
+3,48,Hidden_size_model_ckpt/lightning_logs/version_3/checkpoints/epoch=99-step=2000.ckpt
+4,64,Hidden_size_model_ckpt/lightning_logs/version_4/checkpoints/epoch=99-step=2000.ckpt
+5,80,Hidden_size_model_ckpt/lightning_logs/version_5/checkpoints/epoch=99-step=2000.ckpt

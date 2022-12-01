@@ -1,0 +1,10 @@
+,epoch,model_ckpt
+0,100,EPOCH_model_ckpt/lightning_logs/version_0/checkpoints/epoch=99-step=2000.ckpt
+1,200,EPOCH_model_ckpt/lightning_logs/version_1/checkpoints/epoch=199-step=4000.ckpt
+2,300,EPOCH_model_ckpt/lightning_logs/version_2/checkpoints/epoch=299-step=6000.ckpt
+3,400,EPOCH_model_ckpt/lightning_logs/version_3/checkpoints/epoch=399-step=8000.ckpt
+4,500,EPOCH_model_ckpt/lightning_logs/version_4/checkpoints/epoch=499-step=10000.ckpt
+5,600,EPOCH_model_ckpt/lightning_logs/version_5/checkpoints/epoch=599-step=12000.ckpt
+6,700,EPOCH_model_ckpt/lightning_logs/version_6/checkpoints/epoch=699-step=14000.ckpt
+7,800,EPOCH_model_ckpt/lightning_logs/version_7/checkpoints/epoch=799-step=16000.ckpt
+8,900,EPOCH_model_ckpt/lightning_logs/version_8/checkpoints/epoch=899-step=18000.ckpt
