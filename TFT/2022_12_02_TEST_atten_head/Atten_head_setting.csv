@@ -1,0 +1,10 @@
+,atten_head,model_ckpt
+0,1,Atten_head_model_ckpt/lightning_logs/version_7/checkpoints/epoch=99-step=2000.ckpt
+1,2,Atten_head_model_ckpt/lightning_logs/version_8/checkpoints/epoch=99-step=2000.ckpt
+2,3,Atten_head_model_ckpt/lightning_logs/version_9/checkpoints/epoch=99-step=2000.ckpt
+3,4,Atten_head_model_ckpt/lightning_logs/version_10/checkpoints/epoch=99-step=2000.ckpt
+4,8,Atten_head_model_ckpt/lightning_logs/version_11/checkpoints/epoch=99-step=2000.ckpt
+5,10,Atten_head_model_ckpt/lightning_logs/version_12/checkpoints/epoch=99-step=2000.ckpt
+6,12,Atten_head_model_ckpt/lightning_logs/version_13/checkpoints/epoch=99-step=2000.ckpt
+7,14,Atten_head_model_ckpt/lightning_logs/version_14/checkpoints/epoch=99-step=2000.ckpt
+8,16,Atten_head_model_ckpt/lightning_logs/version_15/checkpoints/epoch=99-step=2000.ckpt
