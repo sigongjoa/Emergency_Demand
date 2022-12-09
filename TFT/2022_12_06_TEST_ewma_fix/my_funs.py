@@ -101,12 +101,15 @@ def moving_average_alpha(df: pd.DataFrame, unit: float):
     # forward df
     for dong in df['h_dong'].unique():
         dong_df = df[df['h_dong'] == dong]
+        max_value = dong_df['count'].max()
         back_ewma = dong_df['count'].ewm(alpha = unit).mean()
+        back_ewma = back_ewma / back_ewma.max() * (max_value)
+        #print(f'{dong} max : {max_value}   ewma_max :{back_ewma.max()}')
         df['count'][dong_df.index] = back_ewma 
-    df['count'] = df['count']  /  df['count'].max() * (max_value)
     
     #print(max_value , df['count'].max())
     return df
+
 
 def moving_average_com(df: pd.DataFrame, unit: float):
     ret_df = pd.DataFrame()
@@ -114,9 +117,11 @@ def moving_average_com(df: pd.DataFrame, unit: float):
     # forward df
     for dong in df['h_dong'].unique():
         dong_df = df[df['h_dong'] == dong]
+        max_value = dong_df['count'].max()
         back_ewma = dong_df['count'].ewm(com = unit).mean()
+        back_ewma = back_ewma / back_ewma.max() * (max_value)
+        #print(f'{dong} max : {max_value}   ewma_max :{back_ewma.max()}')
         df['count'][dong_df.index] = back_ewma 
-    df['count'] = df['count']  /  df['count'].max() * (max_value)
     
     #print(max_value , df['count'].max())
     return df
@@ -127,9 +132,11 @@ def moving_average_span(df: pd.DataFrame, unit: float):
     # forward df
     for dong in df['h_dong'].unique():
         dong_df = df[df['h_dong'] == dong]
+        max_value = dong_df['count'].max()
         back_ewma = dong_df['count'].ewm(span = unit).mean()
+        back_ewma = back_ewma / back_ewma.max() * (max_value)
+        #print(f'{dong} max : {max_value}   ewma_max :{back_ewma.max()}')
         df['count'][dong_df.index] = back_ewma 
-    df['count'] = df['count']  /  df['count'].max() * (max_value)
     
     #print(max_value , df['count'].max())
     return df
@@ -140,9 +147,28 @@ def moving_average_halflife(df: pd.DataFrame, unit: float):
     # forward df
     for dong in df['h_dong'].unique():
         dong_df = df[df['h_dong'] == dong]
+        max_value = dong_df['count'].max()
         back_ewma = dong_df['count'].ewm(halflife = unit).mean()
+        back_ewma = back_ewma / back_ewma.max() * (max_value)
+        #print(f'{dong} max : {max_value}   ewma_max :{back_ewma.max()}')
         df['count'][dong_df.index] = back_ewma 
-    df['count'] = df['count']  /  df['count'].max() * (max_value)
+
+    #print(max_value , df['count'].max())
+    return df
+
+def moving_average_alpha_both(df: pd.DataFrame, unit: float):
+    ret_df = pd.DataFrame()
+    for dong in df['h_dong'].unique():
+        dong_df = df[df['h_dong'] == dong]
+        max_value = dong_df['count'].max()
+        back_ewma = dong_df['count'].ewm(alpha = unit).mean()
+
+        inv_dong_df = dong_df[::-1]
+        for_ewma = inv_dong_df['count'].ewm(alpha = unit).mean()
+        
+        ewma = (for_ewma + back_ewma) / 2
+        ewma = ewma / ewma.max() * max_value
+        df['count'][dong_df.index] = ewma 
     
     #print(max_value , df['count'].max())
     return df
@@ -293,13 +319,14 @@ def confusion_matrix_plot(training, tft ,data ,dong , title  ):
         val_data = get_val_dataloader(training ,data, 24*7 + 24*i)
         pred , x, idx_df = tft.predict(val_data, mode='raw', return_x = True , return_index = True)
         idx = idx_df[idx_df['h_dong'] == dong].index[0]
-        predition5 = np.concatenate([predition5,pred['prediction'][idx, : , 5]])
+        predition5 = np.concatenate([predition5,pred['prediction'][idx, : , 3]])
     
     ax0.plot(df_index,predition5 , label = 'preidction' , alpha=0.4)
 
-    org_count = org_count.to_numpy()
+    org_data = data_processing('../../test.csv' , 0 , None)
+    org_data = org_data[org_data['h_dong'] == dong]
+    org_count = org_data[org_data['time_idx'] > 24*7-1]['count']
     org_count = np.logical_not(org_count < 1)
-    predition5 = np.logical_not(predition5 < 0.5)
     
     org_data = data_processing('../../test.csv' , 0 , None)
     org_data = org_data[org_data['h_dong'] == dong]
@@ -327,90 +354,28 @@ def confusion_matrix_plot(training, tft ,data ,dong , title  ):
     ax2.text(0.1, 3.6 , f'precision {precision : 4f}' , fontsize=25)
     ax2.text(0.1, 3.9 , f'MAE       {MAE : 4f}' , fontsize=25)
     
-def post_processing(org,pred , cut_off):
-    df = pred_category(org, pred)
-    for idx in range(1, df['pred_category'].max()+1):
-        df_idx = df[df['pred_category'] == idx][cut_off:].index
-        #print(df_idx)
-        df['pred_category'].loc[df_idx] = 0 
-    cut_off_idx = df[df['pred_category'] > 0].index
-    df['pred'] = 0
-    df.loc[cut_off_idx,'pred'] = 1
-    return np.array(df['org']) , np.array(df['pred'])
-
-def confusion_matrix_plot_cut_off(training, tft ,data, cut_off ,theshold,dong , title):
-    # 원본 함수 
+    
+def prediction_plot_n(training, tft ,data, dong , title, round_cut,n):
     fig = plt.figure(figsize=(25, 7))
-    gs = gridspec.GridSpec(nrows=2, # row 몇 개 
-                           ncols=2, # col 몇 개 
-                           height_ratios=[1,1], 
-                           width_ratios=[5,1]
-                          )
-
-    gs.update(wspace=0.025, hspace=0.2)
-    ax0 = plt.subplot(gs[: , 0])
-    ax1 = plt.subplot(gs[1,1])
-    ax2 = plt.subplot(gs[0,1])
-
-    ax1.set_xticks([])
-    ax1.set_yticks([])
-    ax1.axis('off')
-    ax2.set_xticks([])
-    ax2.set_yticks([])
-    ax2.axis('off')
-
-    ax0.set_title(f'{dong}_plot {title}' , fontsize = 20)
-    ax2.set_title('confusion_matrix', fontsize = 20)
-    ax1.set_title('recall & precision , MAE', fontsize = 20)
-
-    # 원하는 동 선택이후  예측할려는 기간의 count와 index(REG_DTIME)를 가져옴
     df = data[data['h_dong']==dong]
     df_index = df[df['time_idx'] > 24* 7 -1]['REG_DTIME']
-    org_count = df[df['time_idx'] > 24* 7 -1 ]['count']
+    org_count_ewma = df[df['time_idx'] > 24* 7 -1 ]['count']
 
     predition5= np.array([])
     for i in range(1,52):
-        # 1년(8760) + 하루(24) * idx를 이용해서 하루씩 append하는 식으로 prediction 진행
         val_data = get_val_dataloader(training ,data, 24*7 + 24*i)
         pred , x, idx_df = tft.predict(val_data, mode='raw', return_x = True , return_index = True)
-        # dong의 문자열 표현을 tft.prediction을 하기 위해서 숫자로 변경
         idx = idx_df[idx_df['h_dong'] == dong].index[0]
-        # 90퍼 값만 사용하기 위해서 [idx, : , 5]과 같이 슬라이싱
-        predition5 = np.concatenate([predition5,pred['prediction'][idx, : , 5]])
+        predition5 = np.concatenate([predition5,pred['prediction'][idx, : , n]])
     
-    # tft가 예측한 값 plot(rounding 적용 X)
-    ax0.plot(df_index,predition5 , label = 'preidction' , alpha=0.4)
-
-
     org_data = data_processing('../../test.csv' , 0 , None)
     org_data = org_data[org_data['h_dong'] == dong]
     org_count = org_data[org_data['time_idx'] > 24*7-1]['count']
     org_count = np.logical_not(org_count < 1)
     
-    predition5 = np.logical_not(predition5 < theshold)
-    org_count = np.array(org_count)
-    org_count , predition5 = post_processing(org_count , predition5 , cut_off)
-    
-    # round된 두 값을 plot로 시각화
-    ax0.plot(df_index,org_count , label = 'orginal target' , alpha=1)
-    ax0.plot(df_index,predition5 ,label = '90% prediction round', alpha= 0.6, linestyle='--')
-    ax0.legend()
-
-    # confusion martix 계산 및 heatmap 시각화
-    tn, fp, fn, tp = metrics.confusion_matrix(org_count,predition5).ravel()
-
-    c_mat = np.array([[tp , fp],[fn , tn]])
-    ax1 = sns.heatmap(c_mat, annot=True, cbar = False, fmt='g',cmap='Blues')
-
-    f1_score = metrics.f1_score(org_count,predition5)
-    f2_score = metrics.fbeta_score(org_count,predition5 , 2)
-    recall = metrics.recall_score(org_count,predition5)
-    precision = metrics.precision_score(org_count,predition5)
-    MAE = abs(recall - precision)
-    
-
-    ax2.text(0.1, 2.7 , f'f1 score  {f1_score : 4f}' , fontsize=25)
-    ax2.text(0.1, 3.0 , f'f2 score  {f2_score : 4f}' , fontsize=25)
-    ax2.text(0.1, 3.3 , f'recall    {recall : 4f}' , fontsize=25)
-    ax2.text(0.1, 3.6 , f'precision {precision : 4f}' , fontsize=25)
-    ax2.text(0.1, 3.9 , f'MAE       {MAE : 4f}' , fontsize=25)
+    plt.plot(df_index,org_count , label = 'orginal target' , alpha=0.4)
+    plt.plot(df_index,predition5 , label = 'preidction' , alpha=0.8)
+    plt.plot(df_index,org_count_ewma , label = 'orginal target' , alpha=0.8)
+    plt.axhline(round_cut, 0 , len(df_index), alpha=0.3 , label = 'round_cut')
+    plt.title(title,fontsize=25)
+    plt.legend()
