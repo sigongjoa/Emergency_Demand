@@ -172,7 +172,7 @@ def graph_count(graph_data : pd.DataFrame, w1 : float , w2 : float , w3 : float)
     '약사명동':['소양동' , '근화동','효자1동', '조운동'],
     '남  면' : ['남산면'],
     '북산면' : ['신북읍' , '동  면'],
-    '소양동' : ['근화동', '후평1동' , '교동' , '조운동' , '약사명동']
+    '소양동' : ['근화동', '후평1동' , '교  동' , '조운동' , '약사명동']
     }
 
     graph_data = graph_data[['REG_DTIME', 'h_dong', 'count', 'pops', 'windspd' , 'humid' , 'temp', 'precip_form', 'precip', 'isHoliday']]
@@ -196,19 +196,16 @@ def graph_count(graph_data : pd.DataFrame, w1 : float , w2 : float , w3 : float)
     nx.set_node_attributes(adm_G, nodes_attr)
     dts = graph_data['REG_DTIME'].unique()#.astype(str)
     dongs = graph_data['h_dong'].unique()
-    graph_count = []
-    for idx in tqdm(graph_data.index):
-        dt = graph_data['REG_DTIME'].loc[idx]
-        dong = graph_data['h_dong'].loc[idx]
-        #print(dt,dong)
-        time_data = graph_data[graph_data['REG_DTIME'] == dt]
-        nei_dong_data = time_data[time_data['h_dong'].isin(k_nbrs(adm_G, dong, 1))]
-        
-        val = (w1 * time_data[time_data['h_dong'].isin([dong])]['count']) +  (w2 * sum(nei_dong_data['count']))
-        graph_count.append(val.iloc[0])
-
-    graph_data['nei1'] = graph_count
+    for dong in tqdm(graph_data['h_dong'].unique()):
+        dong_df = graph_data[graph_data['h_dong'] == dong]
+        nei_dongs = k_nbrs(adm_G, dong, 1)
+        nei_sum = np.full(len(dong_df), 0)
+        for nei_dong in nei_dongs:
+            nei_count = graph_data[graph_data['h_dong'] == nei_dong]['count'].to_list()
+            nei_sum += nei_count
+        graph_data.loc[dong_df.index, 'nei1'] = (w1*dong_df['count'].to_list()) + (w2*nei_sum)
     return graph_data
+
 
 def data_processing(path : str  , unit : float , ewma_fun : moving_average_alpha ):
     # path  : 데이터가 저장된 경로

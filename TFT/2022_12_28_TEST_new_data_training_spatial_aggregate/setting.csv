@@ -1,0 +1,7 @@
+factor,model_ckpt
+0.01,ckpt/lightning_logs/version_1/checkpoints/epoch=299-step=6000.ckpt
+0.05,ckpt/lightning_logs/version_2/checkpoints/epoch=299-step=6000.ckpt
+0.1,ckpt/lightning_logs/version_3/checkpoints/epoch=299-step=6000.ckpt
+0.3,ckpt/lightning_logs/version_4/checkpoints/epoch=299-step=6000.ckpt
+0.5,ckpt/lightning_logs/version_5/checkpoints/epoch=299-step=6000.ckpt
+0.7,ckpt/lightning_logs/version_6/checkpoints/epoch=299-step=6000.ckpt
