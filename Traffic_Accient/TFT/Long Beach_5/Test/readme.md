@@ -22,7 +22,7 @@
 
 현재 TFT 모델에 사용하는 loss는 qunantile loss를 사용중(default)  
 
-$ \max(q \times (y_{real}-y_{\text{pred}}), (1-q) \times (y_{\text{pred}}-y_{real}))$
+$\max(q \times (y_{real}-y_{\text{pred}}), (1-q) \times (y_{\text{pred}}-y_{real}))$
 
 현재 사용하는 데이터가 sparsity 함  
 이는 $y_{pred} = y_{real} = 0$ 이고 이는 계산을 했을 때 $0$이 나오고 이에 대해서 loss에 대한 계산이 이루어지지 않음  
